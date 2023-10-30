@@ -49,16 +49,30 @@ if __name__ == '__main__':
 
     image = cv2.imread('./image/gandalf.png')
     trimap = cv2.imread('./trimap/gandalf.png', cv2.IMREAD_GRAYSCALE)
+    back = cv2.imread('./image/ocean.png')
+    back = cv2.resize(back, (image.shape[1], image.shape[0]))
 
     alpha = knn_matting(image, trimap)
     alpha = alpha[:, :, np.newaxis]
+    
+    foreground = np.zeros(image.shape)
+    background = np.zeros(image.shape)
+    result = np.zeros(image.shape)
+    for i in range(image.shape[0]):
+        for j in range(image.shape[1]):
+            foreground[i, j] = image[i, j] * alpha[i, j] / 255
+            background[i, j] = back[i, j] * ((1 - alpha[i, j]) / 255)
+            result[i, j] = foreground[i,j] + background[i,j]
 
-    plt.title('Alpha Matte')
+    cv2.imshow('Result', result)
+    cv2.imwrite('./alpha/gandalf_10.png', alpha*255)
+    cv2.imwrite('./result/gandalf_10.png', result*255)
+    cv2.waitKey(0)
+
+    """plt.title('Alpha Matte')
     plt.imshow(alpha, cmap='gray')
-    plt.show()
-
-    """
-    result = []
-    cv2.imwrite('./result/bear.png', result)
-    """
+    cv2.imshow('Image', foreground)
+    cv2.imshow('Back', background)
+    cv2.imshow('Result', result)
+    plt.show()"""
     
