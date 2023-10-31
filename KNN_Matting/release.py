@@ -14,6 +14,7 @@ def knn_matting(image, trimap, my_lambda=100):
 
     all_constraints = foreground + background
 
+    n_neighbors = 10
     print('Finding nearest neighbors')
     a, b = np.unravel_index(np.arange(h*w), (h, w))
     feature_vec = np.append(np.transpose(image.reshape(h*w,c)), [ a, b]/np.sqrt(h*h + w*w), axis=0).T
@@ -22,8 +23,8 @@ def knn_matting(image, trimap, my_lambda=100):
 
     # Compute Sparse A
     print('Computing sparse A')
-    row_inds = np.repeat(np.arange(h*w), 10)
-    col_inds = knns.reshape(h*w*10)
+    row_inds = np.repeat(np.arange(h*w), n_neighbors)
+    col_inds = knns.reshape(h*w*n_neighbors)
     vals = 1 - np.linalg.norm(feature_vec[row_inds] - feature_vec[col_inds], axis=1)/(c+2)
     A = scipy.sparse.coo_matrix((vals, (row_inds, col_inds)),shape=(h*w, h*w))
 
@@ -47,9 +48,10 @@ def knn_matting(image, trimap, my_lambda=100):
 
 if __name__ == '__main__':
 
-    image = cv2.imread('./image/gandalf.png')
-    trimap = cv2.imread('./trimap/gandalf.png', cv2.IMREAD_GRAYSCALE)
-    back = cv2.imread('./image/ocean.png')
+    imagefile = 'gandalf.png'
+    image = cv2.imread('./image/' + imagefile)
+    trimap = cv2.imread('./trimap/' + imagefile, cv2.IMREAD_GRAYSCALE)
+    back = cv2.imread('./image/lalaland.png')
     back = cv2.resize(back, (image.shape[1], image.shape[0]))
 
     alpha = knn_matting(image, trimap)
@@ -65,8 +67,9 @@ if __name__ == '__main__':
             result[i, j] = foreground[i,j] + background[i,j]
 
     cv2.imshow('Result', result)
-    cv2.imwrite('./alpha/gandalf_10.png', alpha*255)
-    cv2.imwrite('./result/gandalf_10.png', result*255)
+    resultfile = 'gandalf_10.png'
+    cv2.imwrite('./alpha/' + resultfile, alpha*255)
+    cv2.imwrite('./result/' + resultfile, result*255)
     cv2.waitKey(0)
 
     """plt.title('Alpha Matte')
