@@ -14,11 +14,11 @@ def knn_matting(image, trimap, my_lambda=100):
 
     all_constraints = foreground + background
 
-    n_neighbors = 30
+    n_neighbors = 10
     print('Finding nearest neighbors')
     a, b = np.unravel_index(np.arange(h*w), (h, w))
     feature_vec = np.append(np.transpose(image.reshape(h*w,c)), [ a, b]/np.sqrt(h*h + w*w), axis=0).T
-    nbrs = sklearn.neighbors.NearestNeighbors(n_neighbors=30, n_jobs=4).fit(feature_vec)
+    nbrs = sklearn.neighbors.NearestNeighbors(n_neighbors=10, n_jobs=4).fit(feature_vec)
     knns = nbrs.kneighbors(feature_vec)[1]
 
     # Compute Sparse A
@@ -48,7 +48,7 @@ def knn_matting(image, trimap, my_lambda=100):
 
 if __name__ == '__main__':
 
-    imagefile = 'gandalf.png'
+    imagefile = 'woman.png'
     image = cv2.imread('./image/' + imagefile)
     trimap = cv2.imread('./trimap/' + imagefile, cv2.IMREAD_GRAYSCALE)
     back = cv2.imread('./image/lalaland.png')
@@ -67,7 +67,7 @@ if __name__ == '__main__':
             result[i, j] = foreground[i,j] + background[i,j]
 
     cv2.imshow('Result', result)
-    resultfile = 'gandalf_30.png'
+    resultfile = 'woman_10.png'
     cv2.imwrite('./alpha/' + resultfile, alpha*255)
     cv2.imwrite('./result/' + resultfile, result*255)
     cv2.waitKey(0)
