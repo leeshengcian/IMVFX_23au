@@ -79,3 +79,6 @@ if __name__ == '__main__':
     cv2.imshow('Result', result)
     plt.show()"""
     
+
+
+#Reference: Marco Forte (2017) KNN Matting [Source code]: https://github.com/MarcoForte/knn-matting
